@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trivia Educativa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f8ff;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    .question-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .question {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+    .option {
+      background: #e6e6e6;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .option:hover {
+      background: #d0d0d0;
+    }
+    .option.correct {
+      background-color: #a6f3a6 !important;
+    }
+    .option.incorrect {
+      background-color: #f7a6a6 !important;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #result {
+      font-size: 1.2rem;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="question-container animate__animated animate__fadeIn" id="quiz-container"></div>
+  <button id="next-btn" disabled>Siguiente</button>
+  <div id="result"></div>
+
+  <script>
+    const preguntas = [
+      {
+        pregunta: "¿Cuál es la capital de Francia?",
+        opciones: ["Madrid", "París", "Roma", "Londres"],
+        correcta: 1
+      },
+      {
+        pregunta: "¿Qué planeta es conocido como el planeta rojo?",
+        opciones: ["Tierra", "Júpiter", "Marte", "Venus"],
+        correcta: 2
+      },
+      {
+        pregunta: "¿Quién escribió 'Cien años de soledad'?",
+        opciones: ["Gabriel García Márquez", "Mario Vargas Llosa", "Pablo Neruda", "Jorge Luis Borges"],
+        correcta: 0
+      }
+    ];
+
+    let actual = 0;
+    let puntaje = 0;
+
+    const quizContainer = document.getElementById('quiz-container');
+    const nextBtn = document.getElementById('next-btn');
+    const resultDiv = document.getElementById('result');
+
+    function mostrarPregunta() {
+      nextBtn.disabled = true;
+      quizContainer.innerHTML = "";
+      const q = preguntas[actual];
+      const div = document.createElement('div');
+      div.innerHTML = `<div class="question">${q.pregunta}</div>`;
+
+      q.opciones.forEach((op, idx) => {
+        const opt = document.createElement('div');
+        opt.classList.add('option');
+        opt.textContent = op;
+        opt.addEventListener('click', () => seleccionarRespuesta(opt, idx));
+        div.appendChild(opt);
+      });
+
+      quizContainer.appendChild(div);
+    }
+
+    function seleccionarRespuesta(elemento, idx) {
+      const opciones = document.querySelectorAll('.option');
+      opciones.forEach(opt => opt.removeEventListener('click', seleccionarRespuesta));
+
+      const correcta = preguntas[actual].correcta;
+      if (idx === correcta) {
+        elemento.classList.add('correct');
+        puntaje++;
+      } else {
+        elemento.classList.add('incorrect');
+        opciones[correcta].classList.add('correct');
+      }
+      opciones.forEach(opt => opt.style.pointerEvents = 'none');
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      actual++;
+      if (actual < preguntas.length) {
+        mostrarPregunta();
+      } else {
+        mostrarResultado();
+      }
+    });
+
+    function mostrarResultado() {
+      quizContainer.innerHTML = "";
+      nextBtn.style.display = 'none';
+      let retro = "";
+      if (puntaje === preguntas.length) {
+        retro = "¡Excelente! Has respondido todo correctamente.";
+      } else if (puntaje >= preguntas.length / 2) {
+        retro = "¡Buen trabajo! Pero aún puedes mejorar.";
+      } else {
+        retro = "No te desanimes. ¡Sigue estudiando y lo lograrás!";
+      }
+      resultDiv.innerHTML = `Tu puntaje final es ${puntaje} de ${preguntas.length}.<br>${retro}`;
+    }
+
+    mostrarPregunta();
+  </script>
+</body>
+</html>
